@@ -678,18 +678,19 @@ function drawLineChart(svgId, data, valueKey, color, label) {
     // Tooltip element
     const tooltip = document.createElement('div');
     tooltip.style.position = 'fixed';
-    tooltip.style.background = 'rgba(0,0,0,0.95)';
-    tooltip.style.color = color;
-    tooltip.style.padding = '8px 12px';
-    tooltip.style.borderRadius = '8px';
-    tooltip.style.fontSize = '12px';
-    tooltip.style.fontWeight = 'bold';
+    tooltip.style.background = 'rgba(20, 20, 40, 0.98)';
+    tooltip.style.backdropFilter = 'blur(10px)';
+    tooltip.style.color = 'white';
+    tooltip.style.padding = '12px 16px';
+    tooltip.style.borderRadius = '12px';
+    tooltip.style.fontSize = '13px';
     tooltip.style.pointerEvents = 'none';
     tooltip.style.zIndex = '10000';
     tooltip.style.border = `2px solid ${color}`;
     tooltip.style.display = 'none';
-    tooltip.style.whiteSpace = 'nowrap';
-    tooltip.style.boxShadow = `0 0 10px ${color}40`;
+    tooltip.style.boxShadow = `0 8px 32px ${color}50, 0 0 20px ${color}30`;
+    tooltip.style.fontWeight = '500';
+    tooltip.style.lineHeight = '1.6';
     document.body.appendChild(tooltip);
 
     // Pontos com tooltip
@@ -722,7 +723,20 @@ function drawLineChart(svgId, data, valueKey, color, label) {
 
         const svgRect = svg.getBoundingClientRect();
 
-        tooltip.textContent = `${shortDate}: ${point[valueKey].toLocaleString('pt-BR')}`;
+        // Criar HTML melhorado para o tooltip
+        tooltip.innerHTML = `
+          <div style="text-align: center;">
+            <div style="font-size: 14px; font-weight: bold; color: ${color}; margin-bottom: 8px;">
+              📅 ${shortDate}
+            </div>
+            <div style="font-size: 16px; font-weight: bold; color: white;">
+              ${point[valueKey].toLocaleString('pt-BR')}
+            </div>
+            <div style="font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 6px;">
+              ${label}
+            </div>
+          </div>
+        `;
         tooltip.style.display = 'block';
 
         // Calcular o tamanho real do SVG na tela
@@ -735,7 +749,7 @@ function drawLineChart(svgId, data, valueKey, color, label) {
 
         // Centralizar horizontalmente e posicionar acima do ponto
         tooltip.style.left = (tooltipX - tooltip.offsetWidth / 2) + 'px';
-        tooltip.style.top = (tooltipY - 45) + 'px';
+        tooltip.style.top = (tooltipY - 55) + 'px';
 
         circle.setAttribute('r', '6');
         circle.setAttribute('stroke-width', '3');
