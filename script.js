@@ -537,6 +537,10 @@ function updatePostsList(posts) {
             <p class="text-sm font-bold">${(post.comments_count || 0).toLocaleString('pt-BR')}</p>
             <p class="text-xs text-gray-400">💬</p>
           </div>
+          <div>
+            <p class="text-sm font-bold">${(post.saved_count || 0).toLocaleString('pt-BR')}</p>
+            <p class="text-xs text-gray-400">💾</p>
+          </div>
         </div>
       </div>
     `;
