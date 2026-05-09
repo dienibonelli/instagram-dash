@@ -882,8 +882,17 @@ function updatePerformanceMatrix(posts) {
       <div class="bg-white/5 card-rounded p-3">
         <p class="text-xs text-gray-400 mb-1">#${idx + 1}</p>
         <p class="text-sm font-semibold line-clamp-2">${post.caption?.substring(0, 40) || 'Post'}</p>
-        <p class="text-lg font-bold text-pink-400 mt-2">${(post.like_count || 0).toLocaleString('pt-BR')}</p>
-        <p class="text-xs text-gray-500 mt-1">${new Date(post.timestamp).toLocaleDateString('pt-BR')}</p>
+        <div class="flex gap-4 mt-2">
+          <div>
+            <p class="text-lg font-bold text-pink-400">${(post.like_count || 0).toLocaleString('pt-BR')}</p>
+            <p class="text-xs text-gray-500">❤️ Curtidas</p>
+          </div>
+          <div>
+            <p class="text-lg font-bold text-green-400">${(post.saved_count || 0).toLocaleString('pt-BR')}</p>
+            <p class="text-xs text-gray-500">💾 Salv.</p>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">${new Date(post.timestamp).toLocaleDateString('pt-BR')}</p>
       </div>
     `).join('');
   }
@@ -896,8 +905,17 @@ function updatePerformanceMatrix(posts) {
       <div class="bg-white/5 card-rounded p-3">
         <p class="text-xs text-gray-400 mb-1">#${idx + 1}</p>
         <p class="text-sm font-semibold line-clamp-2">${post.caption?.substring(0, 40) || 'Post'}</p>
-        <p class="text-lg font-bold text-blue-400 mt-2">${(post.comments_count || 0).toLocaleString('pt-BR')}</p>
-        <p class="text-xs text-gray-500 mt-1">${new Date(post.timestamp).toLocaleDateString('pt-BR')}</p>
+        <div class="flex gap-4 mt-2">
+          <div>
+            <p class="text-lg font-bold text-blue-400">${(post.comments_count || 0).toLocaleString('pt-BR')}</p>
+            <p class="text-xs text-gray-500">💬 Coment.</p>
+          </div>
+          <div>
+            <p class="text-lg font-bold text-green-400">${(post.saved_count || 0).toLocaleString('pt-BR')}</p>
+            <p class="text-xs text-gray-500">💾 Salv.</p>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">${new Date(post.timestamp).toLocaleDateString('pt-BR')}</p>
       </div>
     `).join('');
   }
