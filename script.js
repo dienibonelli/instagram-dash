@@ -302,12 +302,12 @@ async function loadInstagramData() {
       dashboardData.reachGrowth = ((dashboardData.reach - prevReach) / prevReach * 100).toFixed(1);
       dashboardData.engagementGrowth = (avgEngagementPerPost > 0 && prevAvgEngagement > 0 ? ((avgEngagementPerPost - prevAvgEngagement) / prevAvgEngagement * 100).toFixed(1) : 0);
       dashboardData.savesGrowth = (prevTotalSaves > 0 ? ((totalSaves - prevTotalSaves) / prevTotalSaves * 100).toFixed(1) : 0);
-      dashboardData.conversionGrowth = ((totalLikes + totalComments + totalSaves) / dashboardData.reach > (prevTotalLikes + prevTotalComments + prevTotalSaves) / prevReach ? 5 : -5);
+      dashboardData.conversionGrowth = ((totalLikes + totalComments) / dashboardData.reach > (prevTotalLikes + prevTotalComments) / prevReach ? 5 : -5);
     }
 
     console.log(`\n📊 COMPARATIVO: Crescimento de ${dashboardData.reachGrowth}% em alcance`);
 
-    dashboardData.conversionRate = ((totalLikes + totalComments + totalSaves) / dashboardData.reach * 100).toFixed(2);
+    dashboardData.conversionRate = ((totalLikes + totalComments) / dashboardData.reach * 100).toFixed(2);
     dashboardData.saveRate = ((totalSaves / dashboardData.impressions) * 100).toFixed(2);
     dashboardData.shareRate = (totalSaves / (totalLikes || 1) * 100).toFixed(2);
     dashboardData.qualifiedEngagement = ((totalSaves + Math.floor(totalLikes * 0.1)) / dashboardData.reach * 100).toFixed(2);
@@ -536,10 +536,6 @@ function updatePostsList(posts) {
           <div>
             <p class="text-sm font-bold">${(post.comments_count || 0).toLocaleString('pt-BR')}</p>
             <p class="text-xs text-gray-400">💬</p>
-          </div>
-          <div>
-            <p class="text-sm font-bold">${(post.saved_count || 0).toLocaleString('pt-BR')}</p>
-            <p class="text-xs text-gray-400">💾</p>
           </div>
         </div>
       </div>
