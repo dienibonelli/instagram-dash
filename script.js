@@ -519,7 +519,7 @@ function updatePostsList(posts) {
     container.innerHTML += `
       <div class="flex items-center gap-4 pb-3 ${idx < 4 ? 'border-b border-white/10' : ''}">
         <div class="w-16 h-16 card-rounded bg-gradient-to-br from-purple-400 to-pink-400 flex-shrink-0 flex items-center justify-center overflow-hidden">
-          <img src="${post.media_url}" alt="${post.caption}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='${post.emoji}'">
+          <img src="${post.media_url}" alt="${post.caption}" class="w-full h-full object-cover" loading="lazy" decoding="async" width="64" height="64" onerror="this.parentElement.innerHTML='${post.emoji}'">
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium line-clamp-2">${post.caption?.substring(0, 50) || 'Post'}</p>
