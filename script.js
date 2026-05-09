@@ -902,6 +902,19 @@ function updatePerformanceMatrix(posts) {
     `).join('');
   }
 
+  // Top 3 por salvamentos
+  const topSaves = [...posts].sort((a, b) => (b.saved_count || 0) - (a.saved_count || 0)).slice(0, 3);
+  const topSavesContainer = document.getElementById('topSavesContainer');
+  if (topSavesContainer) {
+    topSavesContainer.innerHTML = topSaves.map((post, idx) => `
+      <div class="bg-white/5 card-rounded p-3">
+        <p class="text-xs text-gray-400 mb-1">#${idx + 1}</p>
+        <p class="text-sm font-semibold line-clamp-2">${post.caption?.substring(0, 40) || 'Post'}</p>
+        <p class="text-lg font-bold text-green-400 mt-2">${(post.saved_count || 0).toLocaleString('pt-BR')}</p>
+        <p class="text-xs text-gray-500 mt-1">${new Date(post.timestamp).toLocaleDateString('pt-BR')}</p>
+      </div>
+    `).join('');
+  }
 
 }
 
