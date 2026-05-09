@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InstaDash - Instagram Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --brand-bg: #1B1B2F;
+      --brand-card: #252540;
+      --brand-success: #10B981;
+      --brand-alert: #EF4444;
+    }
+
+    body {
+      background-color: var(--brand-bg);
+      color: white;
+    }
+
+    .card-rounded {
+      border-radius: 12px;
+    }
+
+    .transition-smooth {
+      transition: all 0.3s ease-in-out;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #9ca3af;
+      transition: all 0.3s;
+    }
+
+    .sidebar-item:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    .sidebar-item.active {
+      background: linear-gradient(to right, #a855f7, #ec4899);
+      color: white;
+    }
+
+    .gauge-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: bold;
+      margin: 0 auto;
+      background: conic-gradient(var(--progress-color) 0deg, rgba(255,255,255,0.1) 0deg);
+    }
+
+    /* Input de data visível */
+    input[type="date"] {
+      color: white !important;
+      background-color: var(--brand-bg) !important;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      cursor: pointer;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+  </style>
+</head>
+<body class="bg-brand-bg text-white">
+<!-- Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="card-rounded bg-brand-card border border-white/10 p-8 text-center max-w-sm">
+      <div class="inline-flex items-center justify-center w-16 h-16 mb-4">
+        <div class="animate-spin">
+          <div class="w-16 h-16 border-4 border-white/20 border-t-pink-500 rounded-full"></div>
+        </div>
+      </div>
+      <h2 class="text-lg font-semibold mb-2">Carregando dados...</h2>
+      <p class="text-sm text-gray-400">Buscando informações do seu Instagram</p>
+    </div>
+  </div>
+
+  <!-- Container Principal -->
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-brand-card h-screen flex flex-col fixed left-0 top-0 border-r border-white/10">
+      <!-- Logo -->
+      <div class="px-6 py-8 border-b border-white/10">
+        <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+          InstaDash
+        </h1>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 px-4 py-6 space-y-2">
+        <a href="#overview" class="sidebar-item active" data-nav="overview">
+          <span class="text-xl">📊</span>
+          <span>Resumo</span>
+        </a>
+        <a href="#analytics" class="sidebar-item" data-nav="analytics">
+          <span class="text-xl">📈</span>
+          <span>Análises</span>
+        </a>
+        <a href="#content" class="sidebar-item" data-nav="content">
+          <span class="text-xl">📸</span>
+          <span>Conteúdo</span>
+        </a>
+        <a href="#audience" class="sidebar-item" data-nav="audience">
+          <span class="text-xl">👥</span>
+          <span>Audiência</span>
+        </a>
+        <a href="#settings" class="sidebar-item" data-nav="settings">
+          <span class="text-xl">⚙️</span>
+          <span>Configurações</span>
+        </a>
+      </nav>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 border-t border-white/10 text-xs text-gray-500">
+        <p>Dashboard v1.0</p>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 w-full min-h-screen bg-brand-bg p-8">
+      <!-- Header -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-3xl font-bold mb-2">Bem-vindo de volta! 👋</h2>
+            <p class="text-gray-400">Aqui está o desempenho do seu Instagram em resumo</p>
+          </div>
+
+          <!-- Date Range Selector & Followers Update -->
+          <div class="flex items-center gap-4 bg-brand-card border border-white/10 card-rounded p-4">
+            <div class="flex flex-col">
+              <label class="text-xs text-gray-400 mb-2">Data Inicial</label>
+              <input
+                type="date"
+                id="dateStart"
+                class="bg-brand-bg border border-white/10 card-rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500"
+              >
+            </div>
+            <div class="text-gray-500">→</div>
+            <div class="flex flex-col">
+              <label class="text-xs text-gray-400 mb-2">Data Final</label>
+              <input
+                type="date"
+                id="dateEnd"
+                class="bg-brand-bg border border-white/10 card-rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500"
+              >
+            </div>
+            <button
+              id="btnFilter"
+              class="mt-6 px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 card-rounded font-semibold text-white hover:shadow-lg transition-smooth"
+            >
+              Filtrar
+            </button>
+            <button
+              id="btnReset"
+              class="mt-6 px-4 py-2 bg-white/10 card-rounded font-semibold text-white hover:bg-white/20 transition-smooth"
+              title="Resetar datas"
+            >
+              ↻
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bento Grid Layout -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-max">
+
+        <!-- KPI Cards Top Row -->
+        <div class="kpi-card card-rounded bg-brand-card border border-white/10 p-6 transition-smooth hover:border-white/20 cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="text-sm text-gray-400 mb-2">Alcance</p>
+              <h3 class="text-4xl font-bold" data-value="45230">0</h3>
+            </div>
+            <span class="text-3xl">📢</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-green-500" data-growth="reachGrowth">↑ 0%</span>
+            <span class="text-xs text-gray-500">vs período anterior</span>
+          </div>
+        </div>
+
+        <div class="kpi-card card-rounded bg-brand-card border border-white/10 p-6 transition-smooth hover:border-white/20 cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="text-sm text-gray-400 mb-2">Engajamento</p>
+              <h3 class="text-4xl font-bold" data-value="8.5">0</h3>
+            </div>
+            <span class="text-3xl">❤️</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-green-500" data-growth="engagementGrowth">↑ 0%</span>
+            <span class="text-xs text-gray-500">vs período anterior</span>
+          </div>
+        </div>
+
+        <div class="kpi-card card-rounded bg-brand-card border border-white/10 p-6 transition-smooth hover:border-white/20 cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="text-sm text-gray-400 mb-2">Seguidores</p>
+              <h3 class="text-4xl font-bold" data-value="12450">0</h3>
+            </div>
+            <span class="text-3xl">👥</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">⏱️ Lifetime (do perfil)</p>
+        </div>
+
+        <div class="kpi-card card-rounded bg-brand-card border border-white/10 p-6 transition-smooth hover:border-white/20 cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="text-sm text-gray-400 mb-2">Salvamentos</p>
+              <h3 class="text-4xl font-bold" data-value="1250">0</h3>
+            </div>
+            <span class="text-3xl">💾</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">⏱️ Lifetime (do perfil)</p>
+        </div>
+
+        <div class="kpi-card card-rounded bg-brand-card border border-white/10 p-6 transition-smooth hover:border-white/20 cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="text-sm text-gray-400 mb-2">Taxa de Conversão</p>
+              <h3 class="text-4xl font-bold" data-value="3.5">0</h3>
+            </div>
+            <span class="text-3xl">📊</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-green-500" data-growth="conversionGrowth">↑ 0%</span>
+            <span class="text-xs text-gray-500">vs período anterior</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">% de pessoas que viram e interagiram</p>
+        </div>
+
+        <div class="kpi-card card-rounded bg-brand-card border border-white/10 p-6 transition-smooth hover:border-white/20 cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="text-sm text-gray-400 mb-2">Taxa de Crescimento</p>
+              <h3 class="text-4xl font-bold" data-value="2.8">0</h3>
+            </div>
+            <span class="text-3xl">📈</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-green-500" data-growth="reachGrowth">↑ 0%</span>
+            <span class="text-xs text-gray-500">vs período anterior</span>
+          </div>
+        </div>
+
+        <!-- Reach Chart -->
+        <div class="lg:col-span-2 card-rounded bg-brand-card border border-white/10 p-6">
+          <h3 class="text-lg font-semibold mb-4">📊 Alcance (Reach)</h3>
+          <div class="text-xs text-gray-400 mb-2">Período: <span id="reachChartPeriod">--</span></div>
+          <svg id="reachChart" class="w-full h-48" viewBox="0 0 700 200" style="border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;"></svg>
+        </div>
+
+        <!-- New Followers Chart -->
+        <div class="lg:col-span-2 card-rounded bg-brand-card border border-white/10 p-6">
+          <h3 class="text-lg font-semibold mb-4">👥 Novos Seguidores</h3>
+          <div class="text-xs text-gray-400 mb-2">Últimos 30 dias</div>
+          <svg id="followersChart" class="w-full h-48" viewBox="0 0 700 200" style="border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;"></svg>
+        </div>
+
+        <!-- Growth Chart -->
+        <div class="lg:col-span-2 row-span-2 card-rounded bg-brand-card border border-white/10 p-6">
+          <h3 class="text-lg font-semibold mb-6">Crescimento de Audiência</h3>
+          <div class="h-64 flex items-end gap-2 px-4">
+            <div class="flex-1 flex flex-col items-center chart-bar" data-value="12000">
+              <div class="w-full card-rounded bg-gradient-to-t from-purple-500 to-pink-500 opacity-80"></div>
+              <p class="text-xs text-gray-400 mt-2">Semana 1</p>
+            </div>
+            <div class="flex-1 flex flex-col items-center chart-bar" data-value="12150">
+              <div class="w-full card-rounded bg-gradient-to-t from-purple-500 to-pink-500 opacity-80"></div>
+              <p class="text-xs text-gray-400 mt-2">Semana 2</p>
+            </div>
+            <div class="flex-1 flex flex-col items-center chart-bar" data-value="12300">
+              <div class="w-full card-rounded bg-gradient-to-t from-purple-500 to-pink-500 opacity-80"></div>
+              <p class="text-xs text-gray-400 mt-2">Semana 3</p>
+            </div>
+            <div class="flex-1 flex flex-col items-center chart-bar" data-value="12400">
+              <div class="w-full card-rounded bg-gradient-to-t from-purple-500 to-pink-500 opacity-80"></div>
+              <p class="text-xs text-gray-400 mt-2">Semana 4</p>
+            </div>
+            <div class="flex-1 flex flex-col items-center chart-bar" data-value="12450">
+              <div class="w-full card-rounded bg-gradient-to-t from-purple-500 to-pink-500 opacity-80"></div>
+              <p class="text-xs text-gray-400 mt-2">Semana 5</p>
+            </div>
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/10">
+            <p class="text-xs text-gray-500 text-center">
+              📊 <strong>Métrica:</strong> Engajamento total (❤️ Curtidas + 💬 Comentários + 💾 Salvamentos) por semana
+            </p>
+            <p class="text-xs text-gray-500 text-center mt-2">
+              Altura da barra = proporção de engajamento da semana | Passe o mouse para ver detalhes
+            </p>
+          </div>
+        </div>
+
+        <!-- Top Performing Posts -->
+        <div class="lg:col-span-3 card-rounded bg-brand-card border border-white/10 p-6">
+          <h3 class="text-lg font-semibold mb-4">Posts Mais Performáticos</h3>
+          <div class="space-y-3">
+            <div class="flex items-center gap-4 pb-3 border-b border-white/10">
+              <div class="w-16 h-16 card-rounded bg-gradient-to-br from-purple-400 to-pink-400 flex-shrink-0"></div>
+              <div class="flex-1">
+                <p class="text-sm font-medium">Vibes de Verão</p>
+                <p class="text-xs text-gray-400">há 2 dias</p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-bold">1.2K</p>
+                <p class="text-xs text-gray-400">curtidas</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 pb-3 border-b border-white/10">
+              <div class="w-16 h-16 card-rounded bg-gradient-to-br from-blue-400 to-purple-400 flex-shrink-0"></div>
+              <div class="flex-1">
+                <p class="text-sm font-medium">Lançamento de Produto</p>
+                <p class="text-xs text-gray-400">há 5 dias</p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-bold">2.1K</p>
+                <p class="text-xs text-gray-400">curtidas</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 pb-3">
+              <div class="w-16 h-16 card-rounded bg-gradient-to-br from-pink-400 to-red-400 flex-shrink-0"></div>
+              <div class="flex-1">
+                <p class="text-sm font-medium">Bastidores</p>
+                <p class="text-xs text-gray-400">há 1 semana</p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-bold">980</p>
+                <p class="text-xs text-gray-400">curtidas</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced Metrics -->
+        <div class="lg:col-span-4 card-rounded bg-brand-card border border-white/10 p-6">
+          <h3 class="text-lg font-semibold mb-6">🎯 Métricas Avançadas 2026</h3>
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+            <div class="bg-white/5 card-rounded p-4">
+              <p class="text-xs text-gray-400 mb-2">Impressões</p>
+              <p class="text-xl font-bold" id="impressions">--</p>
+              <p class="text-xs text-gray-500 mt-1">Total visualizações</p>
+            </div>
+            <div class="bg-white/5 card-rounded p-4 border-l-2 border-green-500">
+              <p class="text-xs text-gray-400 mb-2">Taxa Salvamento</p>
+              <p class="text-xl font-bold" id="saveRate">--</p>
+              <p class="text-xs text-gray-500 mt-1">% de impressões</p>
+            </div>
+            <div class="bg-white/5 card-rounded p-4 border-l-2 border-purple-500">
+              <p class="text-xs text-gray-400 mb-2">🚀 Taxa Compartilhamento</p>
+              <p class="text-xl font-bold" id="shareRate">--</p>
+              <p class="text-xs text-gray-500 mt-1">Métrica crítica</p>
+            </div>
+            <div class="bg-white/5 card-rounded p-4 border-l-2 border-pink-500">
+              <p class="text-xs text-gray-400 mb-2">Engajamento Qualificado</p>
+              <p class="text-xl font-bold" id="qualifiedEngagement">--</p>
+              <p class="text-xs text-gray-500 mt-1">Save + Share</p>
+            </div>
+            <div class="bg-white/5 card-rounded p-4 border-l-2 border-blue-500">
+              <p class="text-xs text-gray-400 mb-2">Crescimento Líquido</p>
+              <p class="text-xl font-bold" id="netFollowerGrowth">--</p>
+              <p class="text-xs text-gray-500 mt-1">Novos seguidores</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Performance Analysis -->
+        <div class="lg:col-span-4 card-rounded bg-brand-card border border-white/10 p-6">
+          <h3 class="text-lg font-semibold mb-6">📊 Análise de Desempenho de Conteúdo</h3>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white/5 card-rounded p-4">
+              <p class="text-xs text-gray-400 mb-2">Média de Curtidas</p>
+              <p class="text-2xl font-bold" id="avgLikes">--</p>
+            </div>
+            <div class="bg-white/5 card-rounded p-4">
+              <p class="text-xs text-gray-400 mb-2">Média de Comentários</p>
+              <p class="text-2xl font-bold" id="avgComments">--</p>
+            </div>
+            <div class="bg-white/5 card-rounded p-4">
+              <p class="text-xs text-gray-400 mb-2">Média de Salvamentos</p>
+              <p class="text-2xl font-bold" id="avgSaves">--</p>
+            </div>
+            <div class="bg-white/5 card-rounded p-4">
+              <p class="text-xs text-gray-400 mb-2">Taxa Save/Like</p>
+              <p class="text-2xl font-bold" id="saveRatio">--</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Engagement Rate & Conversion -->
+        <div class="lg:col-span-2 card-rounded bg-brand-card border border-white/10 p-6">
+          <h3 class="text-lg font-semibold mb-6">📊 Engagement Rate & Conversion</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white/5 card-rounded p-4">
+              <p class="text-xs text-gray-400 mb-2">Taxa de Engajamento</p>
+              <p class="text-3xl font-bold text-pink-400" id="avgEngagementRate">--</p>
+              <p class="text-xs text-gray-500 mt-2">Média: (Eng. / Seguidores) × 100</p>
+            </div>
+            <div class="bg-white/5 card-rounded p-4">
+              <p class="text-xs text-gray-400 mb-2">Taxa de Conversão</p>
+              <p class="text-3xl font-bold text-blue-400" id="avgConversionRate">--</p>
+              <p class="text-xs text-gray-500 mt-2">Média: (Eng. / Alcance) × 100</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bio Link Clicks Analysis -->
+        <div class="lg:col-span-2 card-rounded bg-brand-card border border-white/10 p-6">
+          <h3 class="text-lg font-semibold mb-6">🔗 Cliques na Bio por Performance</h3>
+          <div class="space-y-3" id="bioClicksContainer">
+            <p class="text-xs text-gray-400">Carregando...</p>
+          </div>
+        </div>
+
+        <!-- Horário e Dia da Semana -->
+        <div class="lg:col-span-4 card-rounded bg-brand-card border border-white/10 p-6">
+          <h3 class="text-lg font-semibold mb-6">⏰ Performance por Horário & Dia da Semana</h3>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Por dia da semana -->
+            <div>
+              <h4 class="text-sm font-semibold mb-4 text-purple-400">📅 Por Dia da Semana</h4>
+              <div class="space-y-2" id="dayOfWeekContainer">
+                <p class="text-xs text-gray-400">Carregando...</p>
+              </div>
+            </div>
+            <!-- Por horário -->
+            <div>
+              <h4 class="text-sm font-semibold mb-4 text-blue-400">🕐 Por Horário do Dia</h4>
+              <div class="space-y-2" id="hourOfDayContainer">
+                <p class="text-xs text-gray-400">Carregando...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Matrix -->
+        <div class="lg:col-span-4 card-rounded bg-brand-card border border-white/10 p-6">
+          <h3 class="text-lg font-semibold mb-6">🎯 Matriz de Performance</h3>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Top Curtidas -->
+            <div>
+              <h4 class="text-sm font-semibold text-pink-400 mb-4">❤️ Top Curtidas</h4>
+              <div class="space-y-3" id="topLikesContainer">
+                <p class="text-xs text-gray-400">Carregando...</p>
+              </div>
+            </div>
+            <!-- Top Comentários -->
+            <div>
+              <h4 class="text-sm font-semibold text-blue-400 mb-4">💬 Top Comentários</h4>
+              <div class="space-y-3" id="topCommentsContainer">
+                <p class="text-xs text-gray-400">Carregando...</p>
+              </div>
+            </div>
+            <!-- Top Salvamentos -->
+            <div>
+              <h4 class="text-sm font-semibold text-green-400 mb-4">💾 Top Salvamentos</h4>
+              <div class="space-y-3" id="topSavesContainer">
+                <p class="text-xs text-gray-400">Carregando...</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+
+      </div>
+    </main>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
