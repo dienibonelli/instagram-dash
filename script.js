@@ -200,7 +200,7 @@ async function loadInstagramData() {
   // Tentar carregar dados reais da API
   try {
     const mediaData = await fetchInstagramAPI(`/${USER_ID}/media`, {
-      fields: 'id,caption,media_type,timestamp,like_count,comments_count',
+      fields: 'id,caption,media_type,timestamp,like_count,comments_count,media_url',
       limit: 20
     });
 
